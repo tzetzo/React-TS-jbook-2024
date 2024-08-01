@@ -6,7 +6,7 @@ const fileCache = localForage.createInstance({
   name: "filecache",
 });
 
-export const unpkgPathPlugin = () => {
+export const unpkgPathPlugin = (inputCode: string) => {
   return {
     name: "unpkg-path-plugin",
     setup(build: esbuild.PluginBuild) {
@@ -33,14 +33,11 @@ export const unpkgPathPlugin = () => {
 
       // load the index.js and any import modules
       build.onLoad({ filter: /.*/ }, async (args) => {
+        // this tells esbuild not to look for the index.js file but to use the following code
         if (args.path === "index.js") {
           return {
             loader: "jsx",
-            contents: `
-              import React from 'react';
-              import ReactDOM from 'react-dom';
-              console.log(React, ReactDOM);
-            `,
+            contents: inputCode,
           };
         }
 

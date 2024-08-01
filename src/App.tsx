@@ -33,7 +33,7 @@ function App() {
       entryPoints: ['index.js'], // we want index.js to be the first file bundled in our app
       bundle: true,
       write: false,
-      plugins: [unpkgPathPlugin()],
+      plugins: [unpkgPathPlugin(input)],
       define: {
         'process.env.NODE_ENV': '"production"', //replaces process.env.NODE_ENV with the string "production"
         global: "window" //replaces the var global with the var window
