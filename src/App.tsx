@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as esbuild from 'esbuild-wasm';
 
 import { unpkgPathPlugin } from "./plugins/unpkg-path-plugin";
+import { fetchPlugin } from "./plugins/fetch-plugin";
 
 function App() {
   const [input, setInput] = useState("");
@@ -33,7 +34,7 @@ function App() {
       entryPoints: ['index.js'], // we want index.js to be the first file bundled in our app
       bundle: true,
       write: false,
-      plugins: [unpkgPathPlugin(input)],
+      plugins: [unpkgPathPlugin(), fetchPlugin(input)],
       define: {
         'process.env.NODE_ENV': '"production"', //replaces process.env.NODE_ENV with the string "production"
         global: "window" //replaces the var global with the var window
