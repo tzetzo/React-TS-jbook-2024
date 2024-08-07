@@ -19,14 +19,18 @@ export const fetchPlugin = (inputCode: string) => {
         };
       });
 
-      build.onLoad({ filter: /\.css$/ }, async (args) => {
+      // When we dont return anything from the `onLoad` function esbuild continues to execute the next `onLoad`!!!
+      // We use this to our advantage to extract common logic
+      build.onLoad({ filter: /.*/ }, async (args) => {
         // Check to see if we have already fetched this file and if it is in the cahce
         const cachedResult = await fileCache.getItem<esbuild.OnLoadResult>(
           args.path
         );
         // If it is in the cahce return it immediately
         if (cachedResult) return cachedResult;
+      });
 
+      build.onLoad({ filter: /\.css$/ }, async (args) => {
         const { data, request } = await axios.get(args.path);
 
         // remove all new line chars, escape all single and double quotes
@@ -54,31 +58,7 @@ export const fetchPlugin = (inputCode: string) => {
       });
 
       build.onLoad({ filter: /.*/ }, async (args) => {
-        // Check to see if we have already fetched this file and if it is in the cahce
-        const cachedResult = await fileCache.getItem<esbuild.OnLoadResult>(
-          args.path
-        );
-        // If it is in the cahce return it immediately
-        if (cachedResult) return cachedResult;
-
         const { data, request } = await axios.get(args.path);
-
-        // const fileType = args.path.match(/\.css$/) ? "css" : "jsx";
-
-        // remove all new line chars, escape all single and double quotes
-        // const escaped = data
-        //   .replace(/\n/g, "")
-        //   .replace(/"/g, '\\"')
-        //   .replace(/'/g, "\\'");
-
-        // const contents =
-        //   fileType === "css"
-        //     ? `
-        //         const style = document.createElement('style');
-        //         style.innerText = '${escaped}';
-        //         document.head.appendChild(style);
-        //     `
-        //     : data;
 
         const result: esbuild.OnLoadResult = {
           loader: "jsx",
