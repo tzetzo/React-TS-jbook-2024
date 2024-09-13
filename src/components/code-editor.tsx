@@ -1,10 +1,14 @@
 import "./code-editor.css";
+import "./syntax.css";
 
 import MonacoEditor, { OnMount } from "@monaco-editor/react";
 import * as prettier from "prettier";
 import parserBabel from "prettier/plugins/babel"; // for parsing advanced JS syntax
 import * as prettierPluginEstree from "prettier/plugins/estree";
 import { useRef } from "react";
+import { parse } from "@babel/parser";
+import traverse from "@babel/traverse";
+import MonacoJSXHighlighter, { makeBabelParse } from "monaco-jsx-highlighter";
 
 interface CodeEditorProps {
   initialValue: string;
@@ -15,9 +19,29 @@ interface CodeEditorProps {
 const CodeEditor: React.FC<CodeEditorProps> = ({ initialValue, onChange }) => {
   const editorRef = useRef<any>(null);
 
-  const handleEditorDidMount: OnMount = (editor) => {
+  const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     editor.updateOptions({ tabSize: 2 });
+
+    // Following lines of code taken and adjusted from https://www.npmjs.com/package/monaco-jsx-highlighter
+    // Had to add `define: { process: { env: {} }, Buffer: {} }` inside `vite.config.ts` otherwise error is thrown in console as traverse npm module is looking for node.js environment but we have browser environment
+    // Minimal Babel setup for React JSX parsing:
+    const babelParse = (code: string) =>
+      parse(code, {
+        sourceType: "module",
+        plugins: ["jsx"],
+      });
+    // Instantiate the highlighter
+    const monacoJSXHighlighter = new MonacoJSXHighlighter(
+      monaco,
+      babelParse,
+      traverse,
+      editor
+    );
+    // Activate highlighting (debounceTime default: 100ms)
+    monacoJSXHighlighter.highlightOnDidChangeModelContent(100);
+    // // Activate JSX commenting
+    // monacoJSXHighlighter.addJSXCommentCommand();
   };
 
   const onFormatClick = async () => {
