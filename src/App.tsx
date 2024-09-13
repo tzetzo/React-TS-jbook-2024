@@ -6,8 +6,8 @@ import { fetchPlugin } from "./plugins/fetch-plugin";
 
 function App() {
   const [input, setInput] = useState("");
-  const [code, setCode] = useState("");
   const esbuildServiceRef = useRef<esbuild.Service | null>(null);
+  const iframe = useRef<any>();
 
   useEffect(() => {
     const startService = async () => {
@@ -25,6 +25,7 @@ function App() {
   const onClick = async () => {
     if(!esbuildServiceRef.current) return;
 
+    iframe.current.srcdoc = html;
 
     // const result = await esbuildServiceRef.current.transform(input, { //transform means transpile(from JSX into JS)
     //   loader: 'jsx',
@@ -41,8 +42,28 @@ function App() {
       }
     });
     
-    setCode(result.outputFiles[0].text)
+    iframe.current.contentWindow.postMessage(result.outputFiles[0].text, '*');
   };
+
+  const html = `
+    <html>
+    <head></head>
+      <body>
+        <div id="root"></div>
+        <script>
+          window.addEventListener("message", (event) => {
+            try {
+              eval(event.data);
+            } catch (error) {
+              const root = document.querySelector("#root");
+              root.innerHTML = '<div style="color: red;"><h4>Runtime Error</h4> ' + error + '</div>';
+              console.error(error);
+            }
+          }, false)
+        </script>
+      </body>
+    </html>
+  `
 
   return (
     <div>
@@ -53,7 +74,7 @@ function App() {
       <div>
         <button onClick={onClick}>Submit</button>
       </div>
-      <pre>{code}</pre>
+      <iframe title="code preview" ref={iframe} sandbox="allow-scripts" srcDoc={html} />
     </div>
   );
 }
