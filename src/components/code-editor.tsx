@@ -8,7 +8,7 @@ import * as prettierPluginEstree from "prettier/plugins/estree";
 import { useRef } from "react";
 import { parse } from "@babel/parser";
 import traverse from "@babel/traverse";
-import MonacoJSXHighlighter, { makeBabelParse } from "monaco-jsx-highlighter";
+import MonacoJSXHighlighter from "monaco-jsx-highlighter";
 
 interface CodeEditorProps {
   initialValue: string;
@@ -39,8 +39,15 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialValue, onChange }) => {
       editor
     );
     // Activate highlighting (debounceTime default: 100ms)
-    monacoJSXHighlighter.highlightOnDidChangeModelContent(100);
-    // // Activate JSX commenting
+    monacoJSXHighlighter.highlightOnDidChangeModelContent(
+      100,
+      // the following lines of code prevent default console logging from MonacoJSXHighlighter
+      () => {},
+      () => {},
+      undefined,
+      () => {}
+    );
+    // Activate JSX commenting
     // monacoJSXHighlighter.addJSXCommentCommand();
   };
 
