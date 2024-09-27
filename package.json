@@ -13,6 +13,7 @@
     "@babel/parser": "^7.25.6",
     "@babel/traverse": "^7.25.6",
     "@monaco-editor/react": "^4.6.0",
+    "@types/react-resizable": "^3.0.8",
     "axios": "^1.7.2",
     "bulmaswatch": "^0.8.1",
     "esbuild-wasm": "0.8.27",
@@ -21,7 +22,8 @@
     "monaco-jsx-highlighter": "^2.77.77",
     "prettier": "^3.3.3",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-resizable": "^3.0.5"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
