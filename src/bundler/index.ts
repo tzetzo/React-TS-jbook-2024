@@ -13,18 +13,33 @@ const bundle = async (rawCode: string) => {
     });
   }
 
-  const result = await service.build({
-    entryPoints: ["index.js"], // we want index.js to be the first file bundled in our app
-    bundle: true,
-    write: false,
-    plugins: [unpkgPathPlugin(), fetchPlugin(rawCode)],
-    define: {
-      "process.env.NODE_ENV": '"production"', //replaces process.env.NODE_ENV with the string "production"
-      global: "window", //replaces the var global with the var window
-    },
-  });
+  try {
+    const result = await service.build({
+      entryPoints: ["index.js"], // we want index.js to be the first file bundled in our app
+      bundle: true,
+      write: false,
+      plugins: [unpkgPathPlugin(), fetchPlugin(rawCode)],
+      define: {
+        "process.env.NODE_ENV": '"production"', //replaces process.env.NODE_ENV with the string "production"
+        global: "window", //replaces the var global with the var window
+      },
+    });
 
-  return result.outputFiles[0].text;
+    return {
+      code: result.outputFiles[0].text,
+      err: "",
+    };
+  } catch (err) {
+    // TS way of handling the catch block
+    if (err instanceof Error) {
+      return {
+        code: "",
+        err: err.message,
+      };
+    } else {
+      throw err;
+    }
+  }
 };
 
 export default bundle;
